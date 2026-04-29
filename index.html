@@ -3,216 +3,175 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Attendance Portal</title>
+    <title>Smart Attendance & Monthly Report</title>
     <style>
-        :root {
-            --primary: #4a90e2;
-            --success: #28a745;
-            --dark: #333;
-            --light: #f8f9fa;
-        }
+        :root { --primary: #4361ee; --secondary: #3f37c9; --success: #4cc9f0; --bg: #f8f9fa; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; }
+        .container { max-width: 1000px; margin: auto; }
+        
+        .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: center; }
+        .card h4 { margin: 0; color: #666; font-size: 0.8rem; }
+        .card p { margin: 5px 0 0; font-size: 1.5rem; font-weight: bold; color: var(--primary); }
 
-        body {
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            background-color: #e9ecef;
-            margin: 0;
-            padding: 20px;
-        }
+        .main-grid { display: grid; grid-template-columns: 1fr 300px; gap: 20px; }
+        .box { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
+        
+        .form-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        input, button { padding: 12px; border-radius: 6px; border: 1px solid #ddd; outline: none; }
+        button { cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .btn-add { background: var(--primary); color: white; border: none; }
+        .btn-report { background: var(--secondary); color: white; border: none; width: 100%; margin-top: 10px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+        th { background: #f1f3f5; }
 
-        .container {
-            max-width: 900px;
-            margin: auto;
-        }
-
-        /* Dashboard Styles */
-        .dashboard {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
-        .card {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            text-align: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        }
-
-        .card h3 { margin: 0; color: #666; font-size: 0.9rem; text-transform: uppercase; }
-        .card p { margin: 10px 0 0; font-size: 1.8rem; font-weight: bold; color: var(--primary); }
-
-        /* Main UI */
-        .main-box {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-            border-bottom: 2px solid var(--light);
-            padding-bottom: 15px;
-        }
-
-        .input-section {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-        }
-
-        input[type="text"] {
-            flex: 1;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 1rem;
-        }
-
-        button {
-            padding: 12px 25px;
-            background: var(--success);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        button:hover { opacity: 0.9; }
-
-        /* Table Design */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th {
-            background: var(--light);
-            text-align: left;
-            padding: 15px;
-            color: #555;
-            font-size: 0.85rem;
-        }
-
-        td {
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-            font-size: 0.95rem;
-        }
-
-        .badge-day { background: #fff3cd; color: #856404; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; }
-        .badge-month { background: #d1ecf1; color: #0c5460; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; }
+        .report-section { display: none; margin-top: 20px; border-top: 2px dashed #ccc; padding-top: 20px; }
+        .active { display: block; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header">
-        <h1>Attendance Dashboard</h1>
-        <div id="current-date" style="color: #666;"></div>
-    </div>
-
     <div class="dashboard">
-        <div class="card">
-            <h3>Total Present</h3>
-            <p id="count-total">0</p>
-        </div>
-        <div class="card">
-            <h3>Today's Count</h3>
-            <p id="count-today">0</p>
-        </div>
-        <div class="card">
-            <h3>Current Month</h3>
-            <p id="current-month-name">-</p>
-        </div>
+        <div class="card"><h4>Total Records</h4><p id="stat-total">0</p></div>
+        <div class="card"><h4>This Month</h4><p id="stat-month">0</p></div>
+        <div class="card"><h4>Today</h4><p id="stat-today">0</p></div>
     </div>
 
-    <div class="main-box">
-        <div class="input-section">
-            <input type="text" id="studentName" placeholder="Enter Student Name...">
-            <button onclick="addAttendance()">Mark Attendance</button>
+    <div class="main-grid">
+        <div class="box">
+            <h3>Mark Attendance</h3>
+            <div class="form-group">
+                <input type="text" id="stuName" placeholder="Student Name">
+                <input type="date" id="stuDate">
+                <button class="btn-add" onclick="saveAttendance()">Save Entry</button>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Date</th>
+                        <th>Day</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody id="attendanceTable"></tbody>
+            </table>
         </div>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Student Name</th>
-                    <th>Date</th>
-                    <th>Day</th>
-                    <th>Month</th>
-                    <th>Time</th>
-                </tr>
-            </thead>
-            <tbody id="attendanceBody">
-                </tbody>
-        </table>
+        <div class="box">
+            <h3>Reports</h3>
+            <p style="font-size: 0.8rem; color: #666;">Select month to see summary</p>
+            <input type="month" id="reportMonth">
+            <button class="btn-report" onclick="generateMonthlyReport()">Generate Report</button>
+            
+            <div id="reportResult" class="report-section">
+                <h4 id="reportTitle">Report</h4>
+                <div id="reportData"></div>
+            </div>
+            
+            <button class="btn-report" style="background:#ef233c; margin-top: 50px;" onclick="clearData()">Clear All Data</button>
+        </div>
     </div>
 </div>
 
 <script>
-    let totalCount = 0;
-    let todayCount = 0;
-
-    // Display Current Month in Dashboard
-    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    // Load Data from LocalStorage
+    let db = JSON.parse(localStorage.getItem('attendanceDB')) || [];
     const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    
-    document.getElementById('current-month-name').innerText = months[new Date().getMonth()];
-    document.getElementById('current-date').innerText = new Date().toDateString();
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
-    function addAttendance() {
-        const nameInput = document.getElementById('studentName');
-        const name = nameInput.value.trim();
+    // Set default date to today
+    document.getElementById('stuDate').valueAsDate = new Date();
+
+    function saveAttendance() {
+        const name = document.getElementById('stuName').value;
+        const dateVal = document.getElementById('stuDate').value;
         
-        if (name === "") {
-            alert("Please enter a name");
+        if(!name || !dateVal) return alert("Fill all fields");
+
+        const dateObj = new Date(dateVal);
+        const entry = {
+            id: Date.now(),
+            name: name,
+            date: dateVal,
+            day: days[dateObj.getDay()],
+            month: dateObj.getMonth(), // 0-11
+            year: dateObj.getFullYear(),
+            time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+        };
+
+        db.push(entry);
+        localStorage.setItem('attendanceDB', JSON.stringify(db));
+        updateUI();
+        document.getElementById('stuName').value = "";
+    }
+
+    function updateUI() {
+        const table = document.getElementById('attendanceTable');
+        const todayStr = new Date().toISOString().split('T')[0];
+        const currentMonth = new Date().getMonth();
+
+        table.innerHTML = db.slice(-10).reverse().map(item => `
+            <tr>
+                <td><strong>${item.name}</strong></td>
+                <td>${item.date}</td>
+                <td>${item.day}</td>
+                <td>${item.time}</td>
+            </tr>
+        `).join('');
+
+        // Stats Update
+        document.getElementById('stat-total').innerText = db.length;
+        document.getElementById('stat-today').innerText = db.filter(x => x.date === todayStr).length;
+        document.getElementById('stat-month').innerText = db.filter(x => x.month === currentMonth).length;
+    }
+
+    function generateMonthlyReport() {
+        const selectedMonth = document.getElementById('reportMonth').value; // Format: "2024-04"
+        if(!selectedMonth) return alert("Please select a month");
+
+        const [year, month] = selectedMonth.split('-');
+        const filtered = db.filter(x => x.year == year && (x.month + 1) == month);
+
+        const reportDiv = document.getElementById('reportResult');
+        const dataDiv = document.getElementById('reportData');
+        
+        reportDiv.classList.add('active');
+        document.getElementById('reportTitle').innerText = `Report for ${months[month-1]} ${year}`;
+
+        if(filtered.length === 0) {
+            dataDiv.innerHTML = "<p>No data found for this month.</p>";
             return;
         }
 
-        const now = new Date();
-        
-        // Date details
-        const dateNum = now.getDate();
-        const monthName = months[now.getMonth()];
-        const dayName = days[now.getDay()];
-        const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        const fullDate = `${dateNum} ${monthName.substring(0,3)} ${now.getFullYear()}`;
+        // Aggregate by name
+        const summary = {};
+        filtered.forEach(x => {
+            summary[x.name] = (summary[x.name] || 0) + 1;
+        });
 
-        // Create Table Row
-        const tbody = document.getElementById('attendanceBody');
-        const row = document.createElement('tr');
-
-        row.innerHTML = `
-            <td><strong>${name}</strong></td>
-            <td>${fullDate}</td>
-            <td><span class="badge-day">${dayName}</span></td>
-            <td><span class="badge-month">${monthName}</span></td>
-            <td>${timeStr}</td>
-        `;
-
-        tbody.prepend(row);
-
-        // Update Dashboard
-        totalCount++;
-        todayCount++; // In a real app, this would reset every 24h
-        document.getElementById('count-total').innerText = totalCount;
-        document.getElementById('count-today').innerText = todayCount;
-
-        // Clear input
-        nameInput.value = "";
-        nameInput.focus();
+        let html = "<ul>";
+        for(let name in summary) {
+            html += `<li><strong>${name}</strong>: ${summary[name]} days present</li>`;
+        }
+        html += "</ul>";
+        dataDiv.innerHTML = html;
     }
 
-    // Enter Key Trigger
-    document.getElementById('studentName').addEventListener('keypress', function (e) {
-        if (e.key === 'Enter') addAttendance();
-    });
+    function clearData() {
+        if(confirm("Are you sure? All data will be deleted.")) {
+            db = [];
+            localStorage.clear();
+            updateUI();
+            location.reload();
+        }
+    }
+
+    updateUI();
 </script>
 
 </body>
