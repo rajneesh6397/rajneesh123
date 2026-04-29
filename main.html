@@ -1,1 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Attendance Portal</title>
+    <style>
+        /* CSS: Design aur Layout */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
 
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 600px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            color: #555;
+        }
+
+        .status-badge {
+            background: #e1f5fe;
+            color: #0288d1;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Student Attendance Portal</h2>
+    
+    <div class="input-group">
+        <input type="text" id="studentName" placeholder="Enter Student Name...">
+        <button onclick="markAttendance()">Mark Present</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Student Name</th>
+                <th>Time</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody id="attendanceList">
+            </tbody>
+    </table>
+</div>
+
+<script>
+    /* JavaScript: Logic aur Functionality */
+    function markAttendance() {
+        const nameInput = document.getElementById('studentName');
+        const name = nameInput.value.trim();
+        const tableBody = document.getElementById('attendanceList');
+
+        if (name === "") {
+            alert("Please enter a name!");
+            return;
+        }
+
+        // Current Time nikalne ke liye
+        const now = new Date();
+        const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        // Naya Row create karna
+        const row = document.createElement('tr');
+        
+        row.innerHTML = `
+            <td>${name}</td>
+            <td>${timeString}</td>
+            <td><span class="status-badge">Present</span></td>
+        `;
+
+        // Table mein add karna
+        tableBody.prepend(row);
+
+        // Input clear karna
+        nameInput.value = "";
+        nameInput.focus();
+    }
+
+    // Enter key support
+    document.getElementById('studentName').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            markAttendance();
+        }
+    });
+</script>
+
+</body>
+</html>
