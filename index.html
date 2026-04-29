@@ -3,146 +3,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Online Attendance Portal</title>
+    <title>Advanced Attendance Portal</title>
     <style>
-        /* CSS: Design aur Layout */
+        :root {
+            --primary: #4a90e2;
+            --success: #28a745;
+            --dark: #333;
+            --light: #f8f9fa;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f7f6;
-            display: flex;
-            justify-content: center;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background-color: #e9ecef;
+            margin: 0;
             padding: 20px;
         }
 
         .container {
+            max-width: 900px;
+            margin: auto;
+        }
+
+        /* Dashboard Styles */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .card {
             background: white;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 600px;
-        }
-
-        h2 {
+            padding: 20px;
+            border-radius: 12px;
             text-align: center;
-            color: #333;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
 
-        .input-group {
+        .card h3 { margin: 0; color: #666; font-size: 0.9rem; text-transform: uppercase; }
+        .card p { margin: 10px 0 0; font-size: 1.8rem; font-weight: bold; color: var(--primary); }
+
+        /* Main UI */
+        .main-box {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            border-bottom: 2px solid var(--light);
+            padding-bottom: 15px;
+        }
+
+        .input-section {
             display: flex;
             gap: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
         }
 
         input[type="text"] {
             flex: 1;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            outline: none;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
         }
 
         button {
-            padding: 10px 20px;
-            background-color: #28a745;
+            padding: 12px 25px;
+            background: var(--success);
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: background 0.3s;
+            font-weight: bold;
         }
 
-        button:hover {
-            background-color: #218838;
-        }
+        button:hover { opacity: 0.9; }
 
+        /* Table Design */
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
         }
 
         th {
-            background-color: #f8f9fa;
+            background: var(--light);
+            text-align: left;
+            padding: 15px;
             color: #555;
-        }
-
-        .status-badge {
-            background: #e1f5fe;
-            color: #0288d1;
-            padding: 4px 8px;
-            border-radius: 4px;
             font-size: 0.85rem;
         }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            font-size: 0.95rem;
+        }
+
+        .badge-day { background: #fff3cd; color: #856404; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; }
+        .badge-month { background: #d1ecf1; color: #0c5460; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Student Attendance Portal</h2>
-    
-    <div class="input-group">
-        <input type="text" id="studentName" placeholder="Enter Student Name...">
-        <button onclick="markAttendance()">Mark Present</button>
+    <div class="header">
+        <h1>Attendance Dashboard</h1>
+        <div id="current-date" style="color: #666;"></div>
     </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Student Name</th>
-                <th>Time</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody id="attendanceList">
-            </tbody>
-    </table>
+    <div class="dashboard">
+        <div class="card">
+            <h3>Total Present</h3>
+            <p id="count-total">0</p>
+        </div>
+        <div class="card">
+            <h3>Today's Count</h3>
+            <p id="count-today">0</p>
+        </div>
+        <div class="card">
+            <h3>Current Month</h3>
+            <p id="current-month-name">-</p>
+        </div>
+    </div>
+
+    <div class="main-box">
+        <div class="input-section">
+            <input type="text" id="studentName" placeholder="Enter Student Name...">
+            <button onclick="addAttendance()">Mark Attendance</button>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Student Name</th>
+                    <th>Date</th>
+                    <th>Day</th>
+                    <th>Month</th>
+                    <th>Time</th>
+                </tr>
+            </thead>
+            <tbody id="attendanceBody">
+                </tbody>
+        </table>
+    </div>
 </div>
 
 <script>
-    /* JavaScript: Logic aur Functionality */
-    function markAttendance() {
+    let totalCount = 0;
+    let todayCount = 0;
+
+    // Display Current Month in Dashboard
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    
+    document.getElementById('current-month-name').innerText = months[new Date().getMonth()];
+    document.getElementById('current-date').innerText = new Date().toDateString();
+
+    function addAttendance() {
         const nameInput = document.getElementById('studentName');
         const name = nameInput.value.trim();
-        const tableBody = document.getElementById('attendanceList');
-
+        
         if (name === "") {
-            alert("Please enter a name!");
+            alert("Please enter a name");
             return;
         }
 
-        // Current Time nikalne ke liye
         const now = new Date();
-        const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-        // Naya Row create karna
-        const row = document.createElement('tr');
         
+        // Date details
+        const dateNum = now.getDate();
+        const monthName = months[now.getMonth()];
+        const dayName = days[now.getDay()];
+        const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const fullDate = `${dateNum} ${monthName.substring(0,3)} ${now.getFullYear()}`;
+
+        // Create Table Row
+        const tbody = document.getElementById('attendanceBody');
+        const row = document.createElement('tr');
+
         row.innerHTML = `
-            <td>${name}</td>
-            <td>${timeString}</td>
-            <td><span class="status-badge">Present</span></td>
+            <td><strong>${name}</strong></td>
+            <td>${fullDate}</td>
+            <td><span class="badge-day">${dayName}</span></td>
+            <td><span class="badge-month">${monthName}</span></td>
+            <td>${timeStr}</td>
         `;
 
-        // Table mein add karna
-        tableBody.prepend(row);
+        tbody.prepend(row);
 
-        // Input clear karna
+        // Update Dashboard
+        totalCount++;
+        todayCount++; // In a real app, this would reset every 24h
+        document.getElementById('count-total').innerText = totalCount;
+        document.getElementById('count-today').innerText = todayCount;
+
+        // Clear input
         nameInput.value = "";
         nameInput.focus();
     }
 
-    // Enter key support
+    // Enter Key Trigger
     document.getElementById('studentName').addEventListener('keypress', function (e) {
-        if (e.key === 'Enter') {
-            markAttendance();
-        }
+        if (e.key === 'Enter') addAttendance();
     });
 </script>
 
